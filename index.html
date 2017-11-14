@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Three.js Tutorial</title>
+	<meta charset="utf-8">
+</head>
+<body style="margin: 0;">
+	<script src="js/three.min.js"></script>
+	<script src="js/OrbitControls.js"></script>
+	<script src="js/Detector.js"></script>
+	<script id="3D-stuff">// <![CDATA[
+	// Our 3D code will go here...
+
+		if (Detector.webgl) {
+			// Initiate function or other initializations here
+			init();
+			animate();
+		} else {
+			var warning = Detector.getWebGLErrorMessage();
+
+			document.getElementById('container').appendChild(warning);
+		}
+
+		
+
+		// Set up the scene, camera, and renderer as global variables
+		var scene, camera, renderer;
+
+		// Sets up the scene
+		function init() {
+			// Create scene and set size
+			scene = new THREE.Scene();
+			var WIDTH = window.innerWidth,
+				HEIGHT = window.innerHeight;
+
+			renderer = new THREE.WebGLRenderer({antialias:true});
+			renderer.setSize(WIDTH, HEIGHT);
+			document.body.appendChild(renderer.domElement);
+
+			// Create a camera, zoom it out from the model a bit, and add it to the scene
+			camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 500);
+			camera.position.set(0,0,100);
+			camera.lookAt(new THREE.Vector3(0,0,0));
+			scene.add(camera);
+
+			// Create an event listener that resizes the renderer with the browser window
+			window.addEventListener('resize', function() {
+				var WIDTH = window.innerWidth,
+				HEIGHT = window.innerHeight;
+				renderer.setSize(WIDTH, HEIGHT);
+				camera.aspect = WIDTH/HEIGHT;
+				camera.updateProjectionMatrix();
+			});
+
+			// Set the background color of the scene
+			renderer.setClearColor(0x333F47, 1);
+
+			// Create a blue LineBasicMaterial
+			var linematerial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+
+			var linegeometry = new THREE.Geometry();
+			linegeometry.vertices.push(new THREE.Vector3(-5,5,0));
+			linegeometry.vertices.push(new THREE.Vector3(5,5,0));
+			linegeometry.vertices.push(new THREE.Vector3(5,-5,0));
+			linegeometry.vertices.push(new THREE.Vector3(-5,-5,0));
+			linegeometry.vertices.push(new THREE.Vector3(-5,5,0));
+
+			var line = new THREE.Line(linegeometry, linematerial);
+			scene.add(line);
+
+			// Create a light, set its position, and add it to the scene
+			var light = new THREE.PointLight(0xffffff);
+			light.position.set(-100,200,100);
+			scene.add(light);
+
+			// Load in the mesh and add it to the scene
+			var loader = new THREE.JSONLoader();
+			loader.load("models/treehouse_logo.js", function(geometry){
+				var material = new THREE.MeshLambertMaterial({color: 0x55B663});
+				mesh = new THREE.Mesh(geometry, material);
+				scene.add(mesh);
+			});
+
+			// Add OrbitControls so that we can pan around with the mouse.
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+			// -----------------End Scene Setup------------------
+
+			
+			/*var form = document.createElement('form');
+			form.id = 'form-1';
+			form.className = 'dropdown-form';
+
+			var inputDrop = document.createElement('select');
+			inputDrop.className = "dropdowns";
+			form.appendChild(inputDrop); // append initial inputDrop to form
+
+			var opt1 = document.createElement('option');
+			var opt2 = document.createElement('option');
+			opt1.value = 'option1';
+			opt2.value = 'option2';
+			opt1.innerHTML = "Option 1";
+			opt2.innerHTML = "Option 2";
+			inputDrop.appendChild(opt1);
+			inputDrop.appendChild(opt2);
+
+			form.appendChild(inputDrop); // append updated inputDrop to form
+			document.body.appendChild(form); // add form to the document
+
+			var inputDrop2 = document.createElement('select');
+			inputDrop2.className = "dropdowns";
+			form.appendChild(inputDrop2);
+
+			/* array of length 7 to hold drop down <option> tags.
+			 * one for blank initial and 6 for shape sides.
+			 */
+			/*var inputOpts = new Array(7); 
+			inputOpts[0] = document.createElement('option');
+			inputOpts[0].value = 'blank-initial';
+			inputOpts[0].innerHTML = ""; // initialize first option to be blank
+			inputDrop2.appendChild(inputOpts[0]);
+			
+			inputOpts[1] = document.createElement('option');
+			inputOpts[1].value = 'option1drop2';
+			inputOpts[1].innerHTML = "Test this shit";
+			inputDrop2.appendChild(inputOpts[1]);*/
+			
+			
+			/*for(i = 1; i < 7; i++){
+				var numWord = converter.toWords(i+2);
+				inputOpts[i] = document.createElement('option');
+				inputOpts[i].value = numWord + "_sides";
+				inputOpts[i].innerHTML = capitalizeFirstLetter(numWord) + " Sides";
+				inputDrop2.appendChild(inputOpts[i]);
+			}*/
+
+			/*
+			// Add new form to the doc to hold drop down box
+			var form = document.createElement('form');
+			form.id = 'dropdown-form';
+			var inputDrop = document.createElement('select');
+
+			form.appendChild(inputDrop); // Add drop down to form
+
+			var inputOpts = new Array(7); // array of length 6 to hold drop down <option> tags
+			inputOpts[0].value = "default";
+			inputOpts[0].innerHTML = "";
+			inputDrop.appendChild(inputOpts[0]);
+			for(i = 1; i < 7; i++){
+				inputOpts[i] = document.createElement('option');
+				inputOpts[i].value = converter.toWords(i+2) + "_sides";
+				inputOpts[i].innerHTML = capitalizeFirstLetter(converter.toWords(i+2)) + " Sides";
+				inputDrop.appendChild(inputOpts[i]);
+				// Then go back to testing event listener
+			}
+
+			form.appendChild(inputDrop); // Add the updated drop down to the form
+
+			document.body.appendChild(form); // Add the form to the document body*/
+
+			/*inputDrop.addEventListener('change', function() {
+				alert("nice");
+			});*/
+		}
+
+		// Renders the scene and updates the render as needed
+		function animate() {
+
+			// Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+			requestAnimationFrame(animate);
+
+			// Render the scene
+			renderer.render(scene, camera);
+			controls.update();
+		}
+
+		
+
+		// ]]>
+		</script>
+		<script>
+			// Import the Number-to-Words module installed from npm
+			//var converter = require('number-to-words');
+
+			// Initial caps function
+			function capitalizeFirstLetter(string) {
+				return string.charAt(0).toUpperCase() + string.slice(1);
+			}
+
+			var form = document.createElement('form');
+			form.id = 'form-1';
+			form.className = 'dropdown-form';
+
+			var inputDrop = document.createElement('select');
+			inputDrop.className = "dropdowns";
+			form.appendChild(inputDrop); // append initial inputDrop to form
+
+			var opt1 = document.createElement('option');
+			var opt2 = document.createElement('option');
+			opt1.value = 'option1';
+			opt2.value = 'option2';
+			opt1.innerHTML = "Option 1";
+			opt2.innerHTML = "Option 2";
+			inputDrop.appendChild(opt1);
+			inputDrop.appendChild(opt2);
+
+			form.appendChild(inputDrop); // append updated inputDrop to form
+			document.body.appendChild(form); // add form to the document
+
+			var inputDrop2 = document.createElement('select');
+			inputDrop2.className = "dropdowns";
+			form.appendChild(inputDrop2);
+
+			/* array of length 7 to hold drop down <option> tags.
+			 * one for blank initial and 6 for shape sides.
+			 */
+			var inputOpts = new Array(7); 
+			inputOpts[0] = document.createElement('option');
+			inputOpts[0].value = 'blank-initial';
+			inputOpts[0].innerHTML = ""; // initialize first option to be blank
+			inputDrop2.appendChild(inputOpts[0]);
+			
+			/*inputOpts[1] = document.createElement('option');
+			inputOpts[1].value = 'option1drop2';
+			inputOpts[1].innerHTML = "Test this shit";
+			inputDrop2.appendChild(inputOpts[1]);*/
+
+			for(i = 1; i < 7; i++){
+				//var converter = require('number-to-words');
+
+				//var numWord = converter.toWords(i+2);
+				inputOpts[i] = document.createElement('option');
+				inputOpts[i].value = "test" + "_sides";
+				inputOpts[i].innerHTML = "Test" + " Sides";
+				inputDrop2.appendChild(inputOpts[i]);
+			}
+
+			inputDrop.addEventListener('change', function() {
+				alert("nice");
+			});
+		</script>
+		<div id="info">Three.js</div>
+		<!--<select id="dropdown_sides">
+			<option value="default"></option>
+			<option value="three_sides">Three Sides</option>
+		</select>-->
+		<style>
+			#info {
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display: block;
+				font-size: 40px;
+				font-variant: small-caps;
+				font-weight: lighter;
+				font-family: "Helvetica";
+				color: white;
+			}
+			.dropdown-form {
+				position: absolute;
+				display: block;
+				top: 30px;
+				left: 5px;
+				width: 15em;
+				z-index: 200;
+			}
+			.dropdowns {
+				display: block;
+				margin: 5px;
+			}
+		</style>
+</body>
+</html>
