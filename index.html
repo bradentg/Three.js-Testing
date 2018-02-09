@@ -53,7 +53,7 @@
 			});
 
 			// Set the background color of the scene
-			renderer.setClearColor(0x333F47, 1);
+			renderer.setClearColor(0xFFFFFF, 1);
 
 			// Create a blue LineBasicMaterial
 			var linematerial = new THREE.LineBasicMaterial({ color: 0x0000ff });
@@ -68,11 +68,11 @@
 			var line = new THREE.Line(linegeometry, linematerial);
 			scene.add(line);
 
-
-			/*var boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+			// Create a box with its edges outlined
+			var boxGeometry = new THREE.BoxGeometry(10, 10, 10);
 			var boxEdges = new THREE.EdgesGeometry( boxGeometry );
-			var outlinedBox = new THREE.LinesSegments( boxEdges, new THREE.LineBasicMaterial({ color: 0x0009ff }));
-			scene.add(outlinedBox);*/
+			var outlinedBox = new THREE.LineSegments( boxEdges, new THREE.LineBasicMaterial({ color: 0x0009ff }));
+			scene.add(outlinedBox);
 
 			// Create a light, set its position, and add it to the scene
 			var light = new THREE.PointLight(0xffffff);
@@ -262,7 +262,7 @@
 				font-variant: small-caps;
 				font-weight: lighter;
 				font-family: "Helvetica";
-				color: white;
+				color: black;
 			}
 			.dropdown-form {
 				position: absolute;
