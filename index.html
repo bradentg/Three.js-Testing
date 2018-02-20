@@ -85,20 +85,6 @@
 		// Set up vertexPositions array as global
 		var vertexPositions = [];
 
-		// Check compatibility, run init functions, and animate
-		if (Detector.webgl) {
-			// Initiate function or other initializations here
-			initScene();
-			initLighting();
-			initGeometry();
-			getOriginalVertexPositions(icosaGeometry);
-			animate();
-		} else {
-			var warning = Detector.getWebGLErrorMessage();
-
-			document.getElementById('container').appendChild(warning);
-		}
-
 		// Sets up the scene, renderer, camera, background color, controls
 		function initScene() {
 			// Create scene and set size
@@ -169,11 +155,44 @@
 			scene.add( icosaMesh );
 		}
 
-		function getOriginalVertexPositions(geometry) {
+		// Save original icosahedron position
+		function getOriginalVertexPositions() {
 			// go through each vertex geometry and store their position in an Array
-			for (var i = 0, l = geometry.vertices.length; i < l; i++) {
-				vertexPositions.push({x: geometry.vertices[i].x, y: geometry.vertices[i].y});
+			for (var i = 0, l = icosaGeometry.vertices.length; i < l; i++) {
+				vertexPositions.push({x: icosaGeometry.vertices[i].x, y: icosaGeometry.vertices[i].y});
 			}
+		}
+
+		// New vertices for tween
+		function getNewVertices() {
+			/* this function returns an array of vertice positions which are randomised
+			from the original vertice position */
+			var newVertices = [];
+			for (var i = 0, l = icosaGeometry.vertices.length; i<l; i++) {
+				newVertices[i] = {
+					x: vertexPositions[i].x -5 + Math.random()*10,
+					y: vertexPositions[i].y -5 + Math.random()*10
+				}
+			}
+			return newVertices;
+		}
+
+		// Tween geometry function
+		function tweenIcosahedron() {
+			var newVertexPositions = getNewVertices();
+			// tween each vertice to their new position
+			for (var i = 0; i < icosaGeometry.vertices.length; i++) {
+				tweenVertex(i, newVertexPositions);
+			}
+		}
+
+		// Tween vertex function
+		function tweenVertex(i, newVertexPositions) {
+			// set the tween
+			TweenLite.to(icosaGeometry.vertices[i], 1, {x: newVertexPositions[i].x, y: newVertexPositions[i].y, ease: Back.easeInOut, onComplete: function() {
+				// start the icosahedron tween again now the animation is complete
+				if (i === 0) tweenIcosahedron();
+			}});
 		}
 
 		// Renders the scene and updates the render as needed
@@ -181,6 +200,7 @@
 
 			// Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
 			requestAnimationFrame(animate);
+			icosaGeometry.verticesNeedUpdate = true;
 
 			icosaMesh.rotateX(.01);
 			icosaMesh.rotateY(.02);
@@ -189,6 +209,21 @@
 			// Render the scene
 			renderer.render(scene, camera);
 			controls.update();
+		}
+
+		// Check compatibility, run init functions, and animate
+		if (Detector.webgl) {
+			// Initiate function or other initializations here
+			initScene();
+			initLighting();
+			initGeometry();
+			getOriginalVertexPositions();
+			animate();
+			tweenIcosahedron();
+		} else {
+			var warning = Detector.getWebGLErrorMessage();
+
+			document.getElementById('container').appendChild(warning);
 		}
 
 		// ]]>
