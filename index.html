@@ -130,18 +130,10 @@
 
 
 		// Declare boxGeometry, boxEdges, outlinedBox, and vertexPositions[] globally
-		var icosaGeometry, icosaMesh;
+		var icosaGeometry, icosaMesh, icosa2, icosa3;
 
 		// Initialize all the starting geometry
 		function initGeometry() {
-
-			/* Old outlined box
-			// Create a box with its edges outlined
-			boxGeometry = new THREE.BoxGeometry(10, 10, 10);
-			boxEdges = new THREE.EdgesGeometry( boxGeometry );
-			outlinedBox = new THREE.LineSegments( boxEdges, new THREE.LineBasicMaterial({ color: 0x005aff }));
-			scene.add(outlinedBox);
-			*/
 
 			icosaGeometry = new THREE.IcosahedronGeometry( 20 );
 
@@ -152,7 +144,15 @@
 			}
 
 			icosaMesh = new THREE.Mesh( icosaGeometry, new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } ));
-			scene.add( icosaMesh );
+
+			icosa2 = icosaMesh.clone();
+			icosa3 = icosaMesh.clone();
+
+			icosaMesh.translateX(-50);
+			icosa3.translateX(50);
+			scene.add(icosaMesh);
+			scene.add(icosa2);
+			scene.add(icosa3);
 		}
 
 		// Save original icosahedron position
@@ -205,6 +205,14 @@
 			icosaMesh.rotateX(.01);
 			icosaMesh.rotateY(.02);
 			icosaMesh.rotateZ(.01);
+
+			icosa2.rotateX(.02);
+			icosa2.rotateY(.01);
+			icosa2.rotateZ(.02);
+
+			icosa3.rotateX(-.03);
+			icosa3.rotateY(.01);
+			icosa3.rotateZ(.01);
 
 			// Render the scene
 			renderer.render(scene, camera);
