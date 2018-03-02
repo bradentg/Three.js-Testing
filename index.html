@@ -3,10 +3,23 @@
 <head>
 	<title>Some Cool Stuff</title>
 	<meta charset="utf-8">
+<script type="text/javascript" src="build/dat.gui.js"></script>
 </head>
 <body style="margin: 0;">
 
+
+	<!--Dat.gui library for control panel-->
+
+
+	<!--<script type="text/javascript" id="dat-gui">
+		var gui = new dat.GUI({
+			height : 10 * 32 - 1
+		});
+	</script>-->
+
 	<script id="html-layout">
+
+
 
 	// Initial caps function
 	function capitalizeFirstLetter(string) {
@@ -80,11 +93,13 @@
 
 
 
-		<div id="info">Three.js</div>
+
+
+	<div id="info">Three.js</div>
 		<!--<select id="dropdown_sides">
 		<option value="default"></option>
 		<option value="three_sides">Three Sides</option>
-	</select>-->
+		</select>-->
 	<style>
 	#info {
 		position: absolute;
@@ -111,6 +126,11 @@
 		display: block;
 		margin: 5px;
 	}
+	/*#dat-gui {
+		position: absolute;
+		z-index: 5;
+		display: block;
+	}*/
 	</style>
 </body>
 </html>

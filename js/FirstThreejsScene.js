@@ -155,5 +155,21 @@ if (Detector.webgl) {
   document.getElementById('container').appendChild(warning);
 }
 
+var gui = new dat.GUI({
+  height : 10 * 32 - 1
+});
+
+var params = {
+  iteration: 5000
+};
+
+
+
+for (var j = 0; j<5; j++){
+  gui.add(params, 'iteration').min(0).max(10000).step(16);
+}
+
+
+
 
 // ]]>
