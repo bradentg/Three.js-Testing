@@ -155,9 +155,7 @@ if (Detector.webgl) {
   document.getElementById('container').appendChild(warning);
 }
 
-var gui = new dat.GUI({
-  height : 10 * 32 - 1
-});
+var gui = new dat.GUI();
 
 var params = {
   iteration: 5000
@@ -166,7 +164,10 @@ var params = {
 
 
 for (var j = 0; j<5; j++){
-  gui.add(params, 'iteration').min(0).max(10000).step(16);
+  gui.add(params, 'iteration', 0, 10000).step(10).onFinishChange(function() {
+    // refresh based on the new value of params.interation
+  });
+
 }
 
 
