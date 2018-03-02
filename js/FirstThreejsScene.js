@@ -155,15 +155,16 @@ if (Detector.webgl) {
   document.getElementById('container').appendChild(warning);
 }
 
+// DAT GUI CONTROL PANEL
+
 var gui = new dat.GUI();
 
-var params = {
-  iteration: 5000
+var ParamHolder = function(){
+  this.iteration = 5000;
 };
 
-
-
 for (var j = 0; j<5; j++){
+  var params = new ParamHolder();
   gui.add(params, 'iteration', 0, 10000).step(10).onFinishChange(function() {
     // refresh based on the new value of params.interation
   });
