@@ -116,30 +116,6 @@ function tweenVertex(i, newVertexPositions) {
   }});
 }
 
-// Renders the scene and updates the render as needed
-function animate() {
-
-  // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
-  requestAnimationFrame(animate);
-  icosaGeometry.verticesNeedUpdate = true;
-
-  icosaMesh.rotateX(.01);
-  icosaMesh.rotateY(.02);
-  icosaMesh.rotateZ(.01);
-
-  icosa2.rotateX(.02);
-  icosa2.rotateY(.01);
-  icosa2.rotateZ(.02);
-
-  icosa3.rotateX(-.03);
-  icosa3.rotateY(.01);
-  icosa3.rotateZ(.01);
-
-  // Render the scene
-  renderer.render(scene, camera);
-  controls.update();
-}
-
 // Check compatibility, run init functions, and animate
 if (Detector.webgl) {
   // Initiate function or other initializations here
@@ -159,18 +135,45 @@ if (Detector.webgl) {
 
 var gui = new dat.GUI();
 
-var ParamHolder = function(){
-  this.iteration = 5000;
-};
-
-for (var j = 0; j<5; j++){
-  var params = new ParamHolder();
-  gui.add(params, 'iteration', 0, 10000).step(10).onFinishChange(function() {
-    // refresh based on the new value of params.interation
-  });
-
+var options = {
+  scale: 1
 }
 
+//for (var j = 0; j<5; j++){
+  gui.add(options, 'scale', 1, 2).onChange(function() {
+    // scale the middle icosahedron by changing the value of each of its scale vector components
+    icosa2.scale.x = options.scale;
+    icosa2.scale.y = options.scale;
+    icosa2.scale.z = options.scale;
+  });
+
+//}
+
+
+
+// Renders the scene and updates the render as needed
+function animate() {
+
+  // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+  requestAnimationFrame(animate);
+  icosaGeometry.verticesNeedUpdate = true;
+
+  /*icosaMesh.rotateX(.01);
+  icosaMesh.rotateY(.02);
+  icosaMesh.rotateZ(.01);*/
+
+  /*icosa2.rotateX(.02);
+  icosa2.rotateY(.01);
+  icosa2.rotateZ(.02);*/
+
+  /*icosa3.rotateX(-.03);
+  icosa3.rotateY(.01);
+  icosa3.rotateZ(.01);*/
+
+  // Render the scene
+  renderer.render(scene, camera);
+  controls.update();
+}
 
 
 
