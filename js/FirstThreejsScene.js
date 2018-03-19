@@ -51,29 +51,56 @@ function initLighting() {
 
 
 // Declare boxGeometry, boxEdges, outlinedBox, and vertexPositions[] globally
-var icosaGeometry, icosaMesh, icosa2, icosa3;
+var icosaMeshes = [];
+var icosaGeometries = [];
 
 // Initialize all the starting geometry
 function initGeometry() {
 
-  icosaGeometry = new THREE.IcosahedronGeometry( 20 );
+  // Create three different icosahedron geometries with different colors
+  for (var i = 0; i < 3; i++){
+    icosaGeometries.push(new THREE.IcosahedronGeometry( 20 ));
 
-  // Give random colors to every face on the geometry
-  for ( var i = 0; i < icosaGeometry.faces.length; i++){
-    var hue = Math.random();
-    icosaGeometry.faces[i].color.setHSL(hue, 1.0, 0.7);
+    // Give a random hue to every face on the geometry
+    for ( var j = 0; j < icosaGeometries[i].faces.length; j++){
+      var hue = Math.random();
+      icosaGeometries[i].faces[j].color.setHSL(hue, 1.0, 0.7);
+    }
   }
 
-  icosaMesh = new THREE.Mesh( icosaGeometry, new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } ));
+  // Create three meshes, one for each icosahedron geometry, and add them to the scene
+  for (var i = 0; i < 3; i++){
+    icosaMeshes.push( new THREE.Mesh( icosaGeometries[i], new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } )));
 
-  icosa2 = icosaMesh.clone();
-  icosa3 = icosaMesh.clone();
+    scene.add(icosaMeshes[i]);
+  }
 
-  icosaMesh.translateX(-50);
-  icosa3.translateX(50);
-  scene.add(icosaMesh);
+  //icosaMesh = new THREE.Mesh( icosaGeometry, new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } ));
+
+  //icosa2 = icosaMesh.clone();
+  //icosa3 = icosaMesh.clone();
+
+/*
+  // Create three icosahedron meshes from the same icosahedron geometry
+  for (var i = 0; i < 3; i++){
+    icosaMeshArray.push(new THREE.Mesh( icosaGeometry, new THREE.MeshBasicMaterial()));
+
+    // Give a random hue to every face of each mesh
+    for (var j = 0; j < icosaMeshArray[i].faces.length; i++){
+      var hue = Math.random();
+      icosaMeshArray[i].faces[j].color.setHSL(hue, 1.0, 0.7);
+    }
+
+    scene.add(icosaMeshArray[i]); // add each mesh to the scene as it is created and given color
+
+  }
+  */
+
+  icosaMeshes[0].translateX(-50);
+  icosaMeshes[2].translateX(50);
+  /*scene.add(icosaMesh);
   scene.add(icosa2);
-  scene.add(icosa3);
+  scene.add(icosa3);*/
 }
 
 // Save original icosahedron position
@@ -85,7 +112,7 @@ function getOriginalVertexPositions() {
 }
 
 // New vertices for tween
-function getNewVertices() {
+function getNewVertices(geom) {
   /* this function returns an array of vertice positions which are randomised
   from the original vertice position */
   var newVertices = [];
@@ -122,9 +149,9 @@ if (Detector.webgl) {
   initScene();
   initLighting();
   initGeometry();
-  getOriginalVertexPositions();
+  //getOriginalVertexPositions();
   animate();
-  tweenIcosahedron();
+  //tweenIcosahedron();
 } else {
   var warning = Detector.getWebGLErrorMessage();
 
@@ -142,9 +169,9 @@ var options = {
 //for (var j = 0; j<5; j++){
   gui.add(options, 'scale', 1, 2).onChange(function() {
     // scale the middle icosahedron by changing the value of each of its scale vector components
-    icosa2.scale.x = options.scale;
-    icosa2.scale.y = options.scale;
-    icosa2.scale.z = options.scale;
+    icosaMeshes[1].scale.x = options.scale;
+    icosaMeshes[1].scale.y = options.scale;
+    icosaMeshes[1].scale.z = options.scale;
   });
 
 //}
@@ -156,19 +183,7 @@ function animate() {
 
   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
   requestAnimationFrame(animate);
-  icosaGeometry.verticesNeedUpdate = true;
-
-  /*icosaMesh.rotateX(.01);
-  icosaMesh.rotateY(.02);
-  icosaMesh.rotateZ(.01);*/
-
-  /*icosa2.rotateX(.02);
-  icosa2.rotateY(.01);
-  icosa2.rotateZ(.02);*/
-
-  /*icosa3.rotateX(-.03);
-  icosa3.rotateY(.01);
-  icosa3.rotateZ(.01);*/
+  //icosaGeometry.verticesNeedUpdate = true;
 
   // Render the scene
   renderer.render(scene, camera);
