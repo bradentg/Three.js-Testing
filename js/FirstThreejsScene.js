@@ -112,7 +112,7 @@ function getOriginalVertexPositions() {
 }
 
 // New vertices for tween
-function getNewVertices(geom) {
+function getNewVertices() {
   /* this function returns an array of vertice positions which are randomised
   from the original vertice position */
   var newVertices = [];
