@@ -4,7 +4,7 @@
 // Set up the scene, camera, and renderer as global variables
 var scene, camera, renderer;
 // Set up vertexPositions array as global
-var vertexPositions = [];
+//var vertexPositions = [];
 
 // Sets up the scene, renderer, camera, background color, controls
 function initScene() {
@@ -75,11 +75,6 @@ function initGeometry() {
     scene.add(icosaMeshes[i]);
   }
 
-  //icosaMesh = new THREE.Mesh( icosaGeometry, new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } ));
-
-  //icosa2 = icosaMesh.clone();
-  //icosa3 = icosaMesh.clone();
-
 /*
   // Create three icosahedron meshes from the same icosahedron geometry
   for (var i = 0; i < 3; i++){
@@ -98,48 +93,52 @@ function initGeometry() {
 
   icosaMeshes[0].translateX(-50);
   icosaMeshes[2].translateX(50);
-  /*scene.add(icosaMesh);
-  scene.add(icosa2);
-  scene.add(icosa3);*/
 }
 
+// Declare vertexPositions as a global variable to be used by getOriginalVertexPositions() and getNewVertices()
+var vertexPositions = [];
+
 // Save original icosahedron position
-function getOriginalVertexPositions() {
+function getOriginalVertexPositions(geom) {
+
   // go through each vertex geometry and store their position in an Array
-  for (var i = 0, l = icosaGeometry.vertices.length; i < l; i++) {
-    vertexPositions.push({x: icosaGeometry.vertices[i].x, y: icosaGeometry.vertices[i].y});
+  for (var i = 0, l = geom.vertices.length; i < l; i++) {
+    vertexPositions.push({x: geom.vertices[i].x, y: geom.vertices[i].y});
   }
+
+  return vertexPositions;
 }
 
 // New vertices for tween
-function getNewVertices() {
+function getNewVertices(geom) {
   /* this function returns an array of vertice positions which are randomised
   from the original vertice position */
   var newVertices = [];
-  for (var i = 0, l = icosaGeometry.vertices.length; i<l; i++) {
+  var originalVertexPositions = getOriginalVertexPositions(geom);
+  for (var i = 0, l = geom.vertices.length; i<l; i++) {
     newVertices[i] = {
-      x: vertexPositions[i].x -5 + Math.random()*10,
-      y: vertexPositions[i].y -5 + Math.random()*10
+      x: originalVertexPositions[i].x -5 + Math.random()*10,
+      y: originalVertexPositions[i].y -5 + Math.random()*10
     }
   }
   return newVertices;
 }
 
 // Tween geometry function
-function tweenIcosahedron() {
-  var newVertexPositions = getNewVertices();
+function tweenIcosahedron(geom) {
+  var newVertexPositions = getNewVertices(geom);
   // tween each vertice to their new position
-  for (var i = 0; i < icosaGeometry.vertices.length; i++) {
-    tweenVertex(i, newVertexPositions);
+  for (var i = 0; i < geom.vertices.length; i++) {
+    tweenVertex(i, newVertexPositions, geom);
   }
 }
 
 // Tween vertex function
-function tweenVertex(i, newVertexPositions) {
+function tweenVertex(i, newVertexPositions, geom) {
   // set the tween
-  TweenLite.to(icosaGeometry.vertices[i], 1, {x: newVertexPositions[i].x, y: newVertexPositions[i].y, ease: Back.easeInOut, onComplete: function() {
+  TweenLite.to(geom.vertices[i], 1, {x: newVertexPositions[i].x, y: newVertexPositions[i].y, ease: Back.easeInOut, onComplete: function() {
     // start the icosahedron tween again now the animation is complete
-    if (i === 0) tweenIcosahedron();
+    if (i === 0) tweenIcosahedron(geom);
   }});
 }
 
@@ -149,9 +148,24 @@ if (Detector.webgl) {
   initScene();
   initLighting();
   initGeometry();
+
+
+
   //getOriginalVertexPositions();
   animate();
   //tweenIcosahedron();
+
+  // Store original vertex positions of each icosahedron geometry
+  for (var i = 0; i < icosaGeometries.length; i++){
+    getOriginalVertexPositions(icosaGeometries[i]);
+    tweenIcosahedron(icosaGeometries[i]);
+  }
+
+  // Tween each icosahedron geometry
+  /*for (var i = 0; i < icosaGeometries.length; i++){
+    tweenIcosahedron(icosaGeometries[i]);
+  }*/
+
 } else {
   var warning = Detector.getWebGLErrorMessage();
 
@@ -183,7 +197,11 @@ function animate() {
 
   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
   requestAnimationFrame(animate);
-  //icosaGeometry.verticesNeedUpdate = true;
+
+  // Update vertices of each icosahedron geometry
+  for (var i = 0; i < icosaGeometries.length; i++){
+    icosaGeometries[i].verticesNeedUpdate = true;
+  }
 
   // Render the scene
   renderer.render(scene, camera);
