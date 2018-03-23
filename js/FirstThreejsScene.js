@@ -20,7 +20,7 @@ function initScene() {
 
   // Create a camera, zoom it out from the model a bit, and add it to the scene
   camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 1000);
-  camera.position.set(0,0,100);
+  camera.position.set(0,0,250);
   camera.lookAt(new THREE.Vector3(0,0,0));
   scene.add(camera);
 
@@ -86,7 +86,7 @@ function initGeometry() {
     // Only translate meshes if there's more than one
     if (icosaMeshes.length > 1) {
       if (i < ((icosaMeshes.length) / 2)){
-        icosaMeshes[i].translateX(i * (-50));
+        icosaMeshes[i].translateX((i+1) * (-50));
       } else {
         icosaMeshes[i].translateX((icosaMeshes.length-i) * 50);
       }
