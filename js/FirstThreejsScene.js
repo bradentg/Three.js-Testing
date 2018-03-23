@@ -19,7 +19,7 @@ function initScene() {
   document.body.appendChild(renderer.domElement);
 
   // Create a camera, zoom it out from the model a bit, and add it to the scene
-  camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 500);
+  camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 1000);
   camera.position.set(0,0,100);
   camera.lookAt(new THREE.Vector3(0,0,0));
   scene.add(camera);
@@ -50,15 +50,18 @@ function initLighting() {
 }
 
 
-// Declare boxGeometry, boxEdges, outlinedBox, and vertexPositions[] globally
+// Declare icosaMeshes and icosaGeometries globally
 var icosaMeshes = [];
 var icosaGeometries = [];
 
 // Initialize all the starting geometry
 function initGeometry() {
 
-  // Create three different icosahedron geometries with different colors
-  for (var i = 0; i < 3; i++){
+  var cubeDimension = 2;
+  var numGeoms = Math.pow(cubeDimension, 3);
+
+  // Create numGeoms different icosahedron geometries with different colors
+  for (var i = 0; i < numGeoms; i++){
     icosaGeometries.push(new THREE.IcosahedronGeometry( 20 ));
 
     // Give a random hue to every face on the geometry
@@ -68,31 +71,29 @@ function initGeometry() {
     }
   }
 
-  // Create three meshes, one for each icosahedron geometry, and add them to the scene
-  for (var i = 0; i < 3; i++){
+  // Create a mesh for each geometry, one for each icosahedron geometry, and add them to the scene
+  for (var i = 0; i < icosaGeometries.length; i++){
     icosaMeshes.push( new THREE.Mesh( icosaGeometries[i], new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } )));
 
     scene.add(icosaMeshes[i]);
   }
 
-/*
-  // Create three icosahedron meshes from the same icosahedron geometry
-  for (var i = 0; i < 3; i++){
-    icosaMeshArray.push(new THREE.Mesh( icosaGeometry, new THREE.MeshBasicMaterial()));
+  // TODO: Create the algorithm to arrange any cubic amount of meshes into a cube using the translate methods
 
-    // Give a random hue to every face of each mesh
-    for (var j = 0; j < icosaMeshArray[i].faces.length; i++){
-      var hue = Math.random();
-      icosaMeshArray[i].faces[j].color.setHSL(hue, 1.0, 0.7);
+  // Translate meshes based on how many there are
+  for (var i = 0; i < icosaMeshes.length; i++){
+
+    // Only translate meshes if there's more than one
+    if (icosaMeshes.length > 1) {
+      if (i < ((icosaMeshes.length) / 2)){
+        icosaMeshes[i].translateX(i * (-50));
+      } else {
+        icosaMeshes[i].translateX((icosaMeshes.length-i) * 50);
+      }
     }
 
-    scene.add(icosaMeshArray[i]); // add each mesh to the scene as it is created and given color
-
   }
-  */
 
-  icosaMeshes[0].translateX(-50);
-  icosaMeshes[2].translateX(50);
 }
 
 // Declare vertexPositions as a global variable to be used by getOriginalVertexPositions() and getNewVertices()
@@ -117,8 +118,8 @@ function getNewVertices(geom) {
   var originalVertexPositions = getOriginalVertexPositions(geom);
   for (var i = 0, l = geom.vertices.length; i<l; i++) {
     newVertices[i] = {
-      x: originalVertexPositions[i].x -5 + Math.random()*10,
-      y: originalVertexPositions[i].y -5 + Math.random()*10
+      x: originalVertexPositions[i].x -(geom.parameters.radius / 4) + Math.random()*(geom.parameters.radius / 2),
+      y: originalVertexPositions[i].y -(geom.parameters.radius / 4) + Math.random()*(geom.parameters.radius / 2)
     }
   }
   return newVertices;
@@ -149,11 +150,7 @@ if (Detector.webgl) {
   initLighting();
   initGeometry();
 
-
-
-  //getOriginalVertexPositions();
   animate();
-  //tweenIcosahedron();
 
   // Store original vertex positions of each icosahedron geometry
   for (var i = 0; i < icosaGeometries.length; i++){
@@ -161,10 +158,7 @@ if (Detector.webgl) {
     tweenIcosahedron(icosaGeometries[i]);
   }
 
-  // Tween each icosahedron geometry
-  /*for (var i = 0; i < icosaGeometries.length; i++){
-    tweenIcosahedron(icosaGeometries[i]);
-  }*/
+  addGUI();
 
 } else {
   var warning = Detector.getWebGLErrorMessage();
@@ -174,24 +168,47 @@ if (Detector.webgl) {
 
 // DAT GUI CONTROL PANEL
 
-var gui = new dat.GUI();
+function addGUI() {
 
-var options = {
-  scale: 1
-}
+  var gui = new dat.GUI();
 
-//for (var j = 0; j<5; j++){
-  /*gui.add(options, 'scale', 1, 2).onChange(function() {
-    // scale the middle icosahedron by changing the value of each of its scale vector components
+  var options = {
+    scale: 1
+  }
 
-    icosaMeshes[1].scale.x = options.scale;
-    icosaMeshes[1].scale.y = options.scale;
-    icosaMeshes[1].scale.z = options.scale;
-  }).onFinishChange(function() {
-    TweenLite.to(icosaMeshes[1].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
-  }));*/
+  var controllers = [];
 
-  var controller = gui.add(options, 'scale', 1, 2)
+  // Create a slider for every icosahedron geometry, name it by number, and make it tween on change
+  for (var j = 0; j < icosaMeshes.length; j++){
+    controllers.push(gui.add(options, 'scale', 1, 2));
+    controllers[j].name("Scale " + (j + 1));
+    update(controllers[j]);
+  }
+
+  // Call onChange function for each controller in the controllers array
+  function update(controller) {
+    controller.onChange(function() {
+      // Tween whichever mesh had its slider value changed
+      TweenLite.to(icosaMeshes[controllers.indexOf(controller)].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
+    });
+  }
+
+/*
+  controllers[j].onChange(function() {
+    console.log(icosaMeshes.length);
+    TweenLite.to(icosaMeshes[j].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
+  }); */
+
+  /*for (var j = 0; j < icosaMeshes.length; j++) {
+    controllers[j].onChange(function() {
+      console.log(icosaMeshes.length);
+      TweenLite.to(icosaMeshes[j].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
+    });
+  }*/
+
+/*
+  //var controller = gui.add(options, 'scale', 1, 2);
+  controller.name("Scale");
   controller.onChange(function() {
     // scale the middle icosahedron by changing the value of each of its scale vector components
     TweenLite.to(icosaMeshes[1].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
@@ -200,6 +217,9 @@ var options = {
     //icosaMeshes[1].scale.y = options.scale;
     //icosaMeshes[1].scale.z = options.scale;
   });
+  */
+
+}
 
 //}
 
