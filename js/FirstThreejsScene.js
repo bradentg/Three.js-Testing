@@ -181,11 +181,24 @@ var options = {
 }
 
 //for (var j = 0; j<5; j++){
-  gui.add(options, 'scale', 1, 2).onChange(function() {
+  /*gui.add(options, 'scale', 1, 2).onChange(function() {
     // scale the middle icosahedron by changing the value of each of its scale vector components
+
     icosaMeshes[1].scale.x = options.scale;
     icosaMeshes[1].scale.y = options.scale;
     icosaMeshes[1].scale.z = options.scale;
+  }).onFinishChange(function() {
+    TweenLite.to(icosaMeshes[1].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
+  }));*/
+
+  var controller = gui.add(options, 'scale', 1, 2)
+  controller.onChange(function() {
+    // scale the middle icosahedron by changing the value of each of its scale vector components
+    TweenLite.to(icosaMeshes[1].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
+
+    //icosaMeshes[1].scale.x = options.scale;
+    //icosaMeshes[1].scale.y = options.scale;
+    //icosaMeshes[1].scale.z = options.scale;
   });
 
 //}
