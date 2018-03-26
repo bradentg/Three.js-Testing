@@ -94,70 +94,43 @@ function initGeometry() {
 
   }
 
-  // TODO: For loop not incrementing. Fix and add a number to each icosahedron.
 
+  /* NUMBER LABELS
+   * Adds a corresponding number (textGeometry) above each icosahedron
+   */
   var loader = new THREE.FontLoader();
-  var textGeometries = [];
 
-  for (var i = 0; i < icosaMeshes.length; i++){
+  //for (var i = 0; i < icosaMeshes.length; i++){
     loader.load( '../fonts/gentilis_regular.typeface.json', function ( font ) {
-
-      var numberText = i + 1;
 
       console.log(i);
 
       console.log(numberText);
 
-  	  textGeometries.push( new THREE.TextGeometry( numberText , {
-  		  font: font,
-  		  size: 10,
-  		  height: 1,
-  		  curveSegments: 12,
-  		  bevelEnabled: false,
-  		  bevelThickness: 10,
-  		  bevelSize: 8,
-  		  bevelSegments: 5
-  	  }));
+      for (var i = 0; i < icosaMeshes.length; i++){
 
-      //console.log(textGeometries.length);
-      //console.log(textGeometries[i].parameters.text);
+        var numberText = i + 1;
 
+        var textGeom = new THREE.TextGeometry( numberText, {
+    		  font: font,
+    		  size: 10,
+    		  height: 1,
+    		  curveSegments: 12,
+    		  bevelEnabled: false,
+    		  bevelThickness: 10,
+    		  bevelSize: 8,
+    		  bevelSegments: 5
+    	  });
 
+        var textMesh = new THREE.Mesh(textGeom, new THREE.MeshBasicMaterial( { color: 0x000000 }));
+        scene.add(textMesh);
 
-      var textMesh = new THREE.Mesh(textGeometries[i], new THREE.MeshBasicMaterial( { color: 0x000000 }));
-      scene.add(textMesh);
+        textMesh.position.copy(icosaMeshes[i].matrixWorld.getPosition());
 
-      textMesh.translateX(i * 10);
+        textMesh.translateY(50);
 
-      //console.log(textGeometries[i].parameters.text);
-      //console.log(icosaMeshes.length);
+      }
     });
-
-  }
-
-/*
-  for (var g in textGeometries) {
-    console.log(g.parameters.text);
-  }*/
-
-  var textMeshes = [];
-  // Create a mesh for each geometry and add it to the scene
-  for (var i = 0; i < textGeometries.length; i++) {
-
-    textMeshes.push( new THREE.Mesh(textGeometries[i], new THREE.MeshBasicMaterial( { color: 0x000000 })) );
-    scene.add(textMeshes[i]);
-      //textMesh.translateX(i * 10);
-  }
-
-
-
-
-
-
-//  }
-
-
-
 
 }
 
