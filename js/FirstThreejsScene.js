@@ -3,8 +3,6 @@
 
 // Set up the scene, camera, and renderer as global variables
 var scene, camera, renderer;
-// Set up vertexPositions array as global
-//var vertexPositions = [];
 
 // Sets up the scene, renderer, camera, background color, controls
 function initScene() {
@@ -19,7 +17,7 @@ function initScene() {
   document.body.appendChild(renderer.domElement);
 
   // Create a camera, zoom it out from the model a bit, and add it to the scene
-  camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 1000);
+  camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 3000);
   camera.position.set(0,0,250);
   camera.lookAt(new THREE.Vector3(0,0,0));
   scene.add(camera);
@@ -57,12 +55,13 @@ var icosaGeometries = [];
 // Initialize all the starting geometry
 function initGeometry() {
 
-  var cubeDimension = 2;
+  var cubeDimension = 4; // TODO: this variable should eventually be set by user input
   var numGeoms = Math.pow(cubeDimension, 3);
+  var initIcosaRadius = 20;
 
   // Create numGeoms different icosahedron geometries with different colors
   for (var i = 0; i < numGeoms; i++){
-    icosaGeometries.push(new THREE.IcosahedronGeometry( 20 ));
+    icosaGeometries.push(new THREE.IcosahedronGeometry( initIcosaRadius ));
 
     // Give a random hue to every face on the geometry
     for ( var j = 0; j < icosaGeometries[i].faces.length; j++){
@@ -80,6 +79,71 @@ function initGeometry() {
 
   // TODO: Create the algorithm to arrange any cubic amount of meshes into a cube using the translate methods
 
+  /* Cubic translation method */
+  if (icosaMeshes.length % 2 == 0){ // If there are an even number of meshes
+
+    var icosaDiameter = 2 * initIcosaRadius;
+
+    for (i = 0; i < icosaMeshes.length; i++){
+
+      var octant = (i%8) + 1; // Which octant to place the object in
+      var layer = (i / 8) + 1; // Which layer of the cube to place in (going from center outward)
+      var posMov = layer * icosaDiameter; // How much to translate the object by postively
+      var negMov = posMov * -1; // How much to translate the object by negatively
+      switch (octant) {
+        case 1:
+          icosaMeshes[i].translateX(posMov);
+          icosaMeshes[i].translateY(posMov);
+          icosaMeshes[i].translateZ(posMov);
+          break;
+        case 2:
+          icosaMeshes[i].translateX(negMov);
+          icosaMeshes[i].translateY(posMov);
+          icosaMeshes[i].translateZ(posMov);
+          break;
+        case 3:
+          icosaMeshes[i].translateX(negMov);
+          icosaMeshes[i].translateY(negMov);
+          icosaMeshes[i].translateZ(posMov);
+          break;
+        case 4:
+          icosaMeshes[i].translateX(posMov);
+          icosaMeshes[i].translateY(negMov);
+          icosaMeshes[i].translateZ(posMov);
+          break;
+        case 5:
+          icosaMeshes[i].translateX(posMov);
+          icosaMeshes[i].translateY(posMov);
+          icosaMeshes[i].translateZ(negMov);
+          break;
+        case 6:
+          icosaMeshes[i].translateX(negMov);
+          icosaMeshes[i].translateY(posMov);
+          icosaMeshes[i].translateZ(negMov);
+          break;
+        case 7:
+          icosaMeshes[i].translateX(negMov);
+          icosaMeshes[i].translateY(negMov);
+          icosaMeshes[i].translateZ(negMov);
+          break;
+        case 8:
+          icosaMeshes[i].translateX(posMov);
+          icosaMeshes[i].translateY(negMov);
+          icosaMeshes[i].translateZ(negMov);
+        default:
+          break;
+      }
+    }
+
+    // TODO: Geometries not placing evenly, also fix to form a cube
+
+
+
+  } else { // If there is an odd number of meshes
+
+  }
+
+  /* ------ Old translation method --------
   // Translate meshes based on how many there are
   for (var i = 0; i < icosaMeshes.length; i++){
 
@@ -92,45 +156,43 @@ function initGeometry() {
       }
     }
 
-  }
+  }*/
+
 
 
   /* NUMBER LABELS
    * Adds a corresponding number (textGeometry) above each icosahedron
    */
   var loader = new THREE.FontLoader();
+  loader.load( '../fonts/gentilis_regular.typeface.json', function ( font ) {
 
-  //for (var i = 0; i < icosaMeshes.length; i++){
-    loader.load( '../fonts/gentilis_regular.typeface.json', function ( font ) {
+    for (var i = 0; i < icosaMeshes.length; i++){
 
-      console.log(i);
+      var numberText = i + 1;
 
-      console.log(numberText);
+      var textGeom = new THREE.TextGeometry( numberText, {
+        font: font,
+        size: 10,
+        height: 1,
+        curveSegments: 12,
+        bevelEnabled: false,
+        bevelThickness: 10,
+        bevelSize: 8,
+        bevelSegments: 5
+      });
 
-      for (var i = 0; i < icosaMeshes.length; i++){
+      var textMesh = new THREE.Mesh(textGeom, new THREE.MeshBasicMaterial( { color: 0x000000 }));
+      scene.add(textMesh);
 
-        var numberText = i + 1;
+      // Position each number above its respective icosahedron and then translate it up by 50
+      textMesh.position.setFromMatrixPosition(icosaMeshes[i].matrix);
+      textMesh.translateY(50);
 
-        var textGeom = new THREE.TextGeometry( numberText, {
-    		  font: font,
-    		  size: 10,
-    		  height: 1,
-    		  curveSegments: 12,
-    		  bevelEnabled: false,
-    		  bevelThickness: 10,
-    		  bevelSize: 8,
-    		  bevelSegments: 5
-    	  });
+    }
+  });
 
-        var textMesh = new THREE.Mesh(textGeom, new THREE.MeshBasicMaterial( { color: 0x000000 }));
-        scene.add(textMesh);
-
-        textMesh.position.copy(icosaMeshes[i].matrixWorld.getPosition());
-
-        textMesh.translateY(50);
-
-      }
-    });
+  var axesHelper = new THREE.AxesHelper( 50 );
+  scene.add( axesHelper );
 
 }
 
@@ -181,21 +243,24 @@ function tweenVertex(i, newVertexPositions, geom) {
   }});
 }
 
+// Tween the icosahedron icosahedron geometries
+function startTween(){
+  // Store original vertex positions of each icosahedron geometry
+  for (var i = 0; i < icosaGeometries.length; i++){
+    getOriginalVertexPositions(icosaGeometries[i]);
+    tweenIcosahedron(icosaGeometries[i]);
+  }
+}
+
+
 // Check compatibility, run init functions, and animate
 if (Detector.webgl) {
   // Initiate function or other initializations here
   initScene();
   initLighting();
   initGeometry();
-
   animate();
-
-  // Store original vertex positions of each icosahedron geometry
-  for (var i = 0; i < icosaGeometries.length; i++){
-    getOriginalVertexPositions(icosaGeometries[i]);
-    tweenIcosahedron(icosaGeometries[i]);
-  }
-
+  startTween();
   addGUI();
 
 } else {
@@ -243,19 +308,6 @@ function addGUI() {
       TweenLite.to(icosaMeshes[j].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
     });
   }*/
-
-/*
-  //var controller = gui.add(options, 'scale', 1, 2);
-  controller.name("Scale");
-  controller.onChange(function() {
-    // scale the middle icosahedron by changing the value of each of its scale vector components
-    TweenLite.to(icosaMeshes[1].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
-
-    //icosaMeshes[1].scale.x = options.scale;
-    //icosaMeshes[1].scale.y = options.scale;
-    //icosaMeshes[1].scale.z = options.scale;
-  });
-  */
 
 }
 
