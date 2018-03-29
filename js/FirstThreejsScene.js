@@ -79,7 +79,7 @@ function initGeometry() {
 
   // TODO: Create the algorithm to arrange any cubic amount of meshes into a cube using the translate methods
 
-  /* Cubic translation method */
+  /* Cubic translation method that does not actually make a cube */
   if (icosaMeshes.length % 2 == 0){ // If there are an even number of meshes
 
     var icosaDiameter = 2 * initIcosaRadius;
@@ -136,6 +136,9 @@ function initGeometry() {
     }
 
     // TODO: Geometries not placing evenly, also fix to form a cube
+
+    /* An actual working cubic translation method */
+
 
 
 
