@@ -176,6 +176,10 @@ function initGeometry() {
   } else {
     console.log("Failed to assign loader variable");
   }
+
+  try {
+
+
   loader.load( ' ../node_modules/three/examples/fonts/gentilis_regular.typeface.json ', function ( font ) {
 
     console.log('Successfully loaded font.');
@@ -218,6 +222,10 @@ function initGeometry() {
 
     }
   });
+
+  } catch (err) {
+    console.log(err.message);
+  }
 
   var axesHelper = new THREE.AxesHelper( 50 );
   scene.add( axesHelper );
