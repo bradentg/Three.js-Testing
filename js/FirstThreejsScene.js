@@ -167,6 +167,13 @@ function initGeometry() {
    * Adds a corresponding number (textGeometry) above each icosahedron
    */
   var loader = new THREE.FontLoader();
+
+  if (loader != null){
+    console.log("Successfully assigned loader variable");
+
+  } else {
+    console.log("Failed to assign loader variable");
+  }
   loader.load( ' ../node_modules/three/examples/fonts/gentilis_regular.typeface.json ', function ( font ) {
 
     console.log('Successfully loaded font.');
