@@ -168,6 +168,8 @@ function initGeometry() {
    */
   var loader = new THREE.FontLoader();
 
+  console.log("Am I even reaching this point?");
+
   if (loader != null){
     console.log("Successfully assigned loader variable");
 
