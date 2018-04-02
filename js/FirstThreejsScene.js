@@ -168,8 +168,6 @@ function initGeometry() {
    */
   var loader = new THREE.FontLoader();
 
-  console.log("Am I even reaching this point?");
-
   if (loader != null){
     console.log("Successfully assigned loader variable");
 
@@ -178,6 +176,17 @@ function initGeometry() {
   }
 
   try {
+
+  // From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+  function reqListener () {
+    console.log(this.responseText);
+  }
+  var oReq = new XMLHttpRequest();
+  oReq.addEventListener("load", reqListener);
+  oReq.open("GET", "../node_modules/three/examples/fonts/gentilis_regular.typeface.json");
+  oReq.send();
+
+  console.log(oReq);
 
 
   loader.load( ' ../node_modules/three/examples/fonts/gentilis_regular.typeface.json ', function ( font ) {
