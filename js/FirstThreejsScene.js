@@ -18,7 +18,7 @@ function initScene() {
 
   // Create a camera, zoom it out from the model a bit, and add it to the scene
   camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 3000);
-  camera.position.set(0,0,250);
+  camera.position.set(0,0,1000);
   camera.lookAt(new THREE.Vector3(0,0,0));
   scene.add(camera);
 
@@ -167,7 +167,7 @@ function initGeometry() {
    * Adds a corresponding number (textGeometry) above each icosahedron
    */
   var loader = new THREE.FontLoader();
-  loader.load( '../fonts/gentilis_regular.typeface.json', function ( font ) {
+  loader.load( ' ../node_modules/three/examples/fonts/gentilis_regular.typeface.json ', function ( font ) {
 
     for (var i = 0; i < icosaMeshes.length; i++){
 
