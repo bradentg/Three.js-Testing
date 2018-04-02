@@ -191,6 +191,8 @@ function initGeometry() {
       textMesh.position.setFromMatrixPosition(icosaMeshes[i].matrix);
       textMesh.translateY(50);
 
+      console.log("Success " + (i + 1));
+
     }
   });
 
