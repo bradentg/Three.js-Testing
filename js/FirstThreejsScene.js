@@ -169,9 +169,15 @@ function initGeometry() {
   var loader = new THREE.FontLoader();
   loader.load( ' ../node_modules/three/examples/fonts/gentilis_regular.typeface.json ', function ( font ) {
 
+    console.log('Successfully loaded font.');
+
     for (var i = 0; i < icosaMeshes.length; i++){
 
+      console.log("Successfully entered for loop.");
+
       var numberText = i + 1;
+
+      console.log("Successfully generated number text as " + numberText);
 
       var textGeom = new THREE.TextGeometry( numberText, {
         font: font,
@@ -184,14 +190,22 @@ function initGeometry() {
         bevelSegments: 5
       });
 
+      console.log("Successfully created a text geometry");
+
       var textMesh = new THREE.Mesh(textGeom, new THREE.MeshBasicMaterial( { color: 0x000000 }));
+
+      console.log("Successfully created a mesh of the text geometry.");
+
       scene.add(textMesh);
+
+      console.log("Successfully added the mesh to the scene.");
+
 
       // Position each number above its respective icosahedron and then translate it up by 50
       textMesh.position.setFromMatrixPosition(icosaMeshes[i].matrix);
       textMesh.translateY(50);
 
-      console.log("Success " + (i + 1));
+      console.log("Successfully translated " + numberText);
 
     }
   });
