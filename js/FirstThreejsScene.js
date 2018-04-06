@@ -79,6 +79,8 @@ function initGeometry() {
 
   // TODO: Create the algorithm to arrange any cubic amount of meshes into a cube using the translate methods
 
+
+
   /* Cubic translation method that does not actually make a cube */
   if (icosaMeshes.length % 2 == 0){ // If there are an even number of meshes
 
@@ -87,7 +89,7 @@ function initGeometry() {
     for (i = 0; i < icosaMeshes.length; i++){
 
       var octant = (i%8) + 1; // Which octant to place the object in
-      var layer = (i / 8) + 1; // Which layer of the cube to place in (going from center outward)
+      var layer = parseInt(i / 8) + 1; // Which layer of the cube to place in (going from center outward)
       var posMov = layer * icosaDiameter; // How much to translate the object by postively
       var negMov = posMov * -1; // How much to translate the object by negatively
       switch (octant) {
@@ -130,14 +132,17 @@ function initGeometry() {
           icosaMeshes[i].translateX(posMov);
           icosaMeshes[i].translateY(negMov);
           icosaMeshes[i].translateZ(negMov);
+          break;
         default:
           break;
       }
+
+
     }
 
-    // TODO: Geometries not placing evenly, also fix to form a cube
+    // TODO: Fix to form a cube
 
-    /* An actual working cubic translation method */
+    // An actual working cubic translation method
 
 
 
@@ -145,6 +150,7 @@ function initGeometry() {
   } else { // If there is an odd number of meshes
 
   }
+
 
   /* ------ Old translation method --------
   // Translate meshes based on how many there are
