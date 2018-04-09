@@ -59,6 +59,7 @@ function initGeometry() {
   var numGeoms = Math.pow(cubeDimension, 3);
   var initIcosaRadius = 20;
 
+
   // Create numGeoms different icosahedron geometries with different colors
   for (var i = 0; i < numGeoms; i++){
     icosaGeometries.push(new THREE.IcosahedronGeometry( initIcosaRadius ));
@@ -70,102 +71,52 @@ function initGeometry() {
     }
   }
 
-  // Create a mesh for each geometry, one for each icosahedron geometry, and add them to the scene
+  var cubeGroup = new THREE.Group();
+
   for (var i = 0; i < icosaGeometries.length; i++){
     icosaMeshes.push( new THREE.Mesh( icosaGeometries[i], new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } )));
 
-    scene.add(icosaMeshes[i]);
-  }
+    var meshCoords = to3D(i, cubeDimension, cubeDimension);
 
-  // TODO: Create the algorithm to arrange any cubic amount of meshes into a cube using the translate methods
+    cubeGroup.add(icosaMeshes[i]);
+    //scene.add(icosaMeshes[i]);
 
+    var cubeSpacing = 100;
 
+    icosaMeshes[i].translateX(meshCoords[0] * cubeSpacing);
+    icosaMeshes[i].translateY(meshCoords[1] * cubeSpacing);
+    icosaMeshes[i].translateZ(meshCoords[2] * cubeSpacing);
 
-  /* Cubic translation method that does not actually make a cube */
-  if (icosaMeshes.length % 2 == 0){ // If there are an even number of meshes
-
-    var icosaDiameter = 2 * initIcosaRadius;
-
-    for (i = 0; i < icosaMeshes.length; i++){
-
-      var octant = (i%8) + 1; // Which octant to place the object in
-      var layer = parseInt(i / 8) + 1; // Which layer of the cube to place in (going from center outward)
-      var posMov = layer * icosaDiameter; // How much to translate the object by postively
-      var negMov = posMov * -1; // How much to translate the object by negatively
-      switch (octant) {
-        case 1:
-          icosaMeshes[i].translateX(posMov);
-          icosaMeshes[i].translateY(posMov);
-          icosaMeshes[i].translateZ(posMov);
-          break;
-        case 2:
-          icosaMeshes[i].translateX(negMov);
-          icosaMeshes[i].translateY(posMov);
-          icosaMeshes[i].translateZ(posMov);
-          break;
-        case 3:
-          icosaMeshes[i].translateX(negMov);
-          icosaMeshes[i].translateY(negMov);
-          icosaMeshes[i].translateZ(posMov);
-          break;
-        case 4:
-          icosaMeshes[i].translateX(posMov);
-          icosaMeshes[i].translateY(negMov);
-          icosaMeshes[i].translateZ(posMov);
-          break;
-        case 5:
-          icosaMeshes[i].translateX(posMov);
-          icosaMeshes[i].translateY(posMov);
-          icosaMeshes[i].translateZ(negMov);
-          break;
-        case 6:
-          icosaMeshes[i].translateX(negMov);
-          icosaMeshes[i].translateY(posMov);
-          icosaMeshes[i].translateZ(negMov);
-          break;
-        case 7:
-          icosaMeshes[i].translateX(negMov);
-          icosaMeshes[i].translateY(negMov);
-          icosaMeshes[i].translateZ(negMov);
-          break;
-        case 8:
-          icosaMeshes[i].translateX(posMov);
-          icosaMeshes[i].translateY(negMov);
-          icosaMeshes[i].translateZ(negMov);
-          break;
-        default:
-          break;
-      }
-
-
-    }
-
-    // TODO: Fix to form a cube
-
-    // An actual working cubic translation method
-
-
-
-
-  } else { // If there is an odd number of meshes
 
   }
 
+  /* TODO: To demonstrate a way of 3D visualization searching/locating:
+   * Create a scene of geometries with a dat.gui search bar, where you can type in a number of geometry to search and when you search that number it'll grow to twice to scale.
+   * then it shrinks to normal size once you've cleared the search or searched another geometry number.
+   */
 
-  /* ------ Old translation method --------
-  // Translate meshes based on how many there are
-  for (var i = 0; i < icosaMeshes.length; i++){
+  //scene.add(cubeGroup);
+  //cubeGroup.translateX(-200);
 
-    // Only translate meshes if there's more than one
-    if (icosaMeshes.length > 1) {
-      if (i < ((icosaMeshes.length) / 2)){
-        icosaMeshes[i].translateX((i+1) * (-50));
-      } else {
-        icosaMeshes[i].translateX((icosaMeshes.length-i) * 50);
-      }
-    }
+  // Convert a 1D array to a 3D array
+  function to3D( index , xMax, yMax ){
 
-  }*/
+    var coords;
+
+    var z = parseInt(index / (xMax * yMax));
+    index -= (z * xMax * yMax);
+    var y = parseInt(index / xMax);
+    var x = index % xMax;
+
+    coords = [x,y,z];
+    return coords;
+
+  }
+
+  // Convert 3D index to 1D index
+  function to1D( x, y, z, xMax, yMax ){
+    return (z * xMax * yMax) + (y * xMax) + x;
+  }
 
 
 
@@ -224,7 +175,8 @@ function initGeometry() {
 
       console.log("Successfully created a mesh of the text geometry.");
 
-      scene.add(textMesh);
+      cubeGroup.add(textMesh);
+      //scene.add(textMesh);
 
       console.log("Successfully added the mesh to the scene.");
 
@@ -241,6 +193,11 @@ function initGeometry() {
   } catch (err) {
     console.log(err.message);
   }
+
+  scene.add(cubeGroup);
+  cubeGroup.translateX(-((cubeDimension - 1) * cubeSpacing) / 2);
+  cubeGroup.translateY(-((cubeDimension - 1) * cubeSpacing) / 2);
+  cubeGroup.translateZ(-((cubeDimension - 1) * cubeSpacing) / 2);
 
   var axesHelper = new THREE.AxesHelper( 50 );
   scene.add( axesHelper );
