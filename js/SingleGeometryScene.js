@@ -8,16 +8,19 @@ var scene, camera, renderer;
 function initScene() {
   // Create scene and set size
   scene = new THREE.Scene();
-  var WIDTH = window.innerWidth,
+  var WIDTH = window.innerWidth * .8,
   HEIGHT = window.innerHeight;
 
   // Create the renderer and set size to same as scene
-  renderer = new THREE.WebGLRenderer({antialias:true});
+  var container = document.getElementById('canvas');
+  //var w = container.offsetWidth;
+  //var h = container.offsetHeight;
+  renderer = new THREE.WebGLRenderer({antialias:true });
   renderer.setSize(WIDTH, HEIGHT);
-  document.body.appendChild(renderer.domElement);
+  container.appendChild(renderer.domElement);
 
   // Create a camera, zoom it out from the model a bit, and add it to the scene
-  camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT, 1, 3000);
+  camera = new THREE.PerspectiveCamera(45, WIDTH/HEIGHT , 1, 3000);
   camera.position.set(0,0,1000);
   camera.lookAt(new THREE.Vector3(0,0,0));
   scene.add(camera);
@@ -32,7 +35,7 @@ function initScene() {
   });
 
   // Set the background color of the scene
-  renderer.setClearColor(0xFFFFFF, 1);
+  renderer.setClearColor(0xdedeff, 1);
 
   // Add OrbitControls to allow panning around with mouse
   controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -50,36 +53,34 @@ function initLighting() {
 
 // Declare icosaMeshes and icosaGeometries globally
 var icosaMeshes = [];
-var icosaGeometries = [];
+var icosaGeometry;
 
 // Initialize all the starting geometry
 function initGeometry() {
 
-  var cubeDimension = 4; // TODO: this variable should eventually be set by user input
-  var numGeoms = Math.pow(cubeDimension, 3);
+  var cubeDimension = 6; // TODO: this variable should eventually be set by user input
+  var numMeshes = Math.pow(cubeDimension, 3);
   var initIcosaRadius = 20;
 
-
-  // Create numGeoms different icosahedron geometries with different colors
-  for (var i = 0; i < numGeoms; i++){
-    icosaGeometries.push(new THREE.IcosahedronGeometry( initIcosaRadius ));
-
-    // Give a random hue to every face on the geometry
-    for ( var j = 0; j < icosaGeometries[i].faces.length; j++){
-      var hue = Math.random();
-      icosaGeometries[i].faces[j].color.setHSL(hue, 1.0, 0.7);
-    }
+  icosaGeometry = new THREE.IcosahedronGeometry( initIcosaRadius );
+  for (var i = 0; i < icosaGeometry.faces.length; i++){
+    var hue = Math.random();
+    icosaGeometry.faces[i].color.setHSL(hue, 1.0, 0.7);
   }
 
   var cubeGroup = new THREE.Group();
 
-  for (var i = 0; i < icosaGeometries.length; i++){
-    icosaMeshes.push( new THREE.Mesh( icosaGeometries[i], new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } )));
+  /* Create meshes out of the icosahedron geometry and push them to an array,
+   * add that array element to a THREE.Group,
+   * and translate them into their respective spots in cube formation
+   * according to their index in the array of meshes.
+   */
+  for (var i = 0; i < numMeshes; i++){
+    icosaMeshes.push( new THREE.Mesh( icosaGeometry, new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } )));
 
     var meshCoords = to3D(i, cubeDimension, cubeDimension);
 
     cubeGroup.add(icosaMeshes[i]);
-    //scene.add(icosaMeshes[i]);
 
     var cubeSpacing = 100;
 
@@ -94,9 +95,6 @@ function initGeometry() {
    * Create a scene of geometries with a dat.gui search bar, where you can type in a number of geometry to search and when you search that number it'll grow to twice to scale.
    * then it shrinks to normal size once you've cleared the search or searched another geometry number.
    */
-
-  //scene.add(cubeGroup);
-  //cubeGroup.translateX(-200);
 
   // Convert a 1D array to a 3D array
   function to3D( index , xMax, yMax ){
@@ -125,13 +123,6 @@ function initGeometry() {
    */
   var loader = new THREE.FontLoader();
 
-  if (loader != null){
-    console.log("Successfully assigned loader variable");
-
-  } else {
-    console.log("Failed to assign loader variable");
-  }
-
   try {
 
   // From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
@@ -145,18 +136,11 @@ function initGeometry() {
 
   console.log(oReq);
 
-
   loader.load( ' ../node_modules/three/examples/fonts/gentilis_regular.typeface.json ', function ( font ) {
-
-    console.log('Successfully loaded font.');
 
     for (var i = 0; i < icosaMeshes.length; i++){
 
-      console.log("Successfully entered for loop.");
-
       var numberText = i + 1;
-
-      console.log("Successfully generated number text as " + numberText);
 
       var textGeom = new THREE.TextGeometry( numberText, {
         font: font,
@@ -169,24 +153,14 @@ function initGeometry() {
         bevelSegments: 5
       });
 
-      console.log("Successfully created a text geometry");
-
       var textMesh = new THREE.Mesh(textGeom, new THREE.MeshBasicMaterial( { color: 0x000000 }));
 
-      console.log("Successfully created a mesh of the text geometry.");
-
+      // Add all text meshes to the same group as the icosahedron geometries
       cubeGroup.add(textMesh);
-      //scene.add(textMesh);
-
-      console.log("Successfully added the mesh to the scene.");
-
 
       // Position each number above its respective icosahedron and then translate it up by 50
       textMesh.position.setFromMatrixPosition(icosaMeshes[i].matrix);
       textMesh.translateY(50);
-
-      console.log("Successfully translated " + numberText);
-
     }
   });
 
@@ -194,6 +168,9 @@ function initGeometry() {
     console.log(err.message);
   }
 
+  /* Add the group of icosahedrons in cubic formation to the scene and
+   * shift it so it's centered on the origin
+   */
   scene.add(cubeGroup);
   cubeGroup.translateX(-((cubeDimension - 1) * cubeSpacing) / 2);
   cubeGroup.translateY(-((cubeDimension - 1) * cubeSpacing) / 2);
@@ -211,8 +188,8 @@ var vertexPositions = [];
 function getOriginalVertexPositions(geom) {
 
   // go through each vertex geometry and store their position in an Array
-  for (var i = 0, l = geom.vertices.length; i < l; i++) {
-    vertexPositions.push({x: geom.vertices[i].x, y: geom.vertices[i].y});
+  for (var i = 0, l = geom.geometry.vertices.length; i < l; i++) {
+    vertexPositions.push({x: geom.geometry.vertices[i].x, y: geom.geometry.vertices[i].y});
   }
 
   return vertexPositions;
@@ -224,10 +201,10 @@ function getNewVertices(geom) {
   from the original vertice position */
   var newVertices = [];
   var originalVertexPositions = getOriginalVertexPositions(geom);
-  for (var i = 0, l = geom.vertices.length; i<l; i++) {
+  for (var i = 0, l = geom.geometry.vertices.length; i<l; i++) {
     newVertices[i] = {
-      x: originalVertexPositions[i].x -(geom.parameters.radius / 4) + Math.random()*(geom.parameters.radius / 2),
-      y: originalVertexPositions[i].y -(geom.parameters.radius / 4) + Math.random()*(geom.parameters.radius / 2)
+      x: originalVertexPositions[i].x -(geom.geometry.parameters.radius / 4) + Math.random()*(geom.geometry.parameters.radius / 2),
+      y: originalVertexPositions[i].y -(geom.geometry.parameters.radius / 4) + Math.random()*(geom.geometry.parameters.radius / 2)
     }
   }
   return newVertices;
@@ -237,7 +214,7 @@ function getNewVertices(geom) {
 function tweenIcosahedron(geom) {
   var newVertexPositions = getNewVertices(geom);
   // tween each vertice to their new position
-  for (var i = 0; i < geom.vertices.length; i++) {
+  for (var i = 0; i < geom.geometry.vertices.length; i++) {
     tweenVertex(i, newVertexPositions, geom);
   }
 }
@@ -245,19 +222,21 @@ function tweenIcosahedron(geom) {
 // Tween vertex function
 function tweenVertex(i, newVertexPositions, geom) {
   // set the tween
-  TweenLite.to(geom.vertices[i], 1, {x: newVertexPositions[i].x, y: newVertexPositions[i].y, ease: Back.easeInOut, onComplete: function() {
+  TweenLite.to(geom.geometry.vertices[i], 1, {x: newVertexPositions[i].x, y: newVertexPositions[i].y, ease: Back.easeInOut, onComplete: function() {
     // start the icosahedron tween again now the animation is complete
     if (i === 0) tweenIcosahedron(geom);
   }});
 }
 
 // Tween the icosahedron icosahedron geometries
-function startTween(){
+function startTween(geom){
   // Store original vertex positions of each icosahedron geometry
-  for (var i = 0; i < icosaGeometries.length; i++){
-    getOriginalVertexPositions(icosaGeometries[i]);
-    tweenIcosahedron(icosaGeometries[i]);
-  }
+  /*for (var i = 0; i < icosaMeshes.length; i++){
+    getOriginalVertexPositions(icosaMeshes[i]);
+    tweenIcosahedron(icosaMeshes[i]);
+  }*/
+  getOriginalVertexPositions(geom);
+  tweenIcosahedron(geom);
 }
 
 
@@ -268,7 +247,11 @@ if (Detector.webgl) {
   initLighting();
   initGeometry();
   animate();
-  startTween();
+
+  for (i = 0; i < icosaMeshes.length; i++){
+    startTween(icosaMeshes[i]);
+  }
+  //startTween(icosaMeshes);
   addGUI();
 
 } else {
@@ -278,7 +261,6 @@ if (Detector.webgl) {
 }
 
 // DAT GUI CONTROL PANEL
-
 function addGUI() {
 
   var gui = new dat.GUI();
@@ -304,24 +286,7 @@ function addGUI() {
     });
   }
 
-/*
-  controllers[j].onChange(function() {
-    console.log(icosaMeshes.length);
-    TweenLite.to(icosaMeshes[j].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
-  }); */
-
-  /*for (var j = 0; j < icosaMeshes.length; j++) {
-    controllers[j].onChange(function() {
-      console.log(icosaMeshes.length);
-      TweenLite.to(icosaMeshes[j].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
-    });
-  }*/
-
 }
-
-//}
-
-
 
 // Renders the scene and updates the render as needed
 function animate() {
@@ -329,9 +294,10 @@ function animate() {
   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
   requestAnimationFrame(animate);
 
-  // Update vertices of each icosahedron geometry
-  for (var i = 0; i < icosaGeometries.length; i++){
-    icosaGeometries[i].verticesNeedUpdate = true;
+  // Update vertices of icosahedron geometry
+  //icosaGeometry.verticesNeedUpdate = true;
+  for (var i = 0; i < icosaMeshes.length; i++){
+    icosaMeshes[i].geometry.verticesNeedUpdate = true;
   }
 
   // Render the scene
