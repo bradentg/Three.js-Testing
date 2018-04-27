@@ -4,6 +4,40 @@
 // Set up the scene, camera, and renderer as global variables
 var scene, camera, renderer;
 
+function loadingScreen() {
+  var progressPage = document.createElement('div');
+  var progressText = document.createElement('div');
+  document.getElementById('canvas').appendChild(progressPage);
+  progressPage.appendChild(progressText);
+
+  progressPage.className = "progress-page";
+  progressText.className = "progress-text";
+
+  THREE.DefaultLoadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+
+    progressText.innerHTML = 'Started loading file: ' + url + '.<br />Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.';
+
+  };
+
+  THREE.DefaultLoadingManager.onLoad = function ( ) {
+
+    progressText.innerHTML += '<br />Loading Complete!';
+
+    // Wait two seconds before removing loading screen
+    setTimeout(function(){
+      progressPage.style.display = "none";
+    }, 2000);
+
+
+  };
+
+  THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+
+    progressText.innerHTML += '<br />Loading file: ' + url + '.<br />Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.'
+
+  };
+}
+
 // Sets up the scene, renderer, camera, background color, controls
 function initScene() {
   // Create scene and set size
@@ -243,6 +277,7 @@ function startTween(geom){
 // Check compatibility, run init functions, and animate
 if (Detector.webgl) {
   // Initiate function or other initializations here
+  loadingScreen();
   initScene();
   initLighting();
   initGeometry();
@@ -272,7 +307,10 @@ function addGUI() {
 
   var previousSearch = 0; // Variable to store the index of the previously searched object
 
-  gui.add(options, 'searchTerm').onFinishChange(function() {
+  var controller = gui.add(options, 'searchTerm');
+  controller.name("Search 1-125");
+
+  controller.onFinishChange(function() {
     var searchIndex = parseInt(this.object.searchTerm) - 1;
 
     // Scale the searched object by 2
