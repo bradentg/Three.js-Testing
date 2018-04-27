@@ -58,7 +58,7 @@ var icosaGeometry;
 // Initialize all the starting geometry
 function initGeometry() {
 
-  var cubeDimension = 6; // TODO: this variable should eventually be set by user input
+  var cubeDimension = 5; // TODO: this variable should eventually be set by user input
   var numMeshes = Math.pow(cubeDimension, 3);
   var initIcosaRadius = 20;
 
@@ -266,9 +266,24 @@ function addGUI() {
   var gui = new dat.GUI();
 
   var options = {
-    scale: 1
+    scale: 1,
+    searchTerm: 'test'
   }
 
+  var previousSearch = 0; // Variable to store the index of the previously searched object
+
+  gui.add(options, 'searchTerm').onFinishChange(function() {
+    var searchIndex = parseInt(this.object.searchTerm) - 1;
+
+    // Scale the searched object by 2
+    TweenLite.to(icosaMeshes[searchIndex].scale, .5, {x: 2, y: 2, z: 2, ease: Back.easeInOut});
+
+    // Scale the previously searched object back to 1
+    TweenLite.to(icosaMeshes[previousSearch].scale, .5, {x: 1, y: 1, z: 1, ease: Back.easeInOut});
+    previousSearch = searchIndex;
+  });
+
+  /*
   var controllers = [];
 
   // Create a slider for every icosahedron geometry, name it by number, and make it tween on change
@@ -285,6 +300,7 @@ function addGUI() {
       TweenLite.to(icosaMeshes[controllers.indexOf(controller)].scale, .5, {x: options.scale, y: options.scale, z: options.scale, ease: Back.easeInOut});
     });
   }
+  */
 
 }
 
