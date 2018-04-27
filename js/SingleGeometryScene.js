@@ -266,8 +266,8 @@ function addGUI() {
   var gui = new dat.GUI();
 
   var options = {
-    scale: 1,
-    searchTerm: 'test'
+    //scale: 1,
+    searchTerm: ''
   }
 
   var previousSearch = 0; // Variable to store the index of the previously searched object
